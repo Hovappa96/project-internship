@@ -37,30 +37,30 @@ const getCollegeDetails = async function (req, res) {
             res.status(400).send({ status: false, msg: "No parameters passed" })
         }
         let name = data;
-        let getCollegeId = await collegeModel.find({ name, isDeleted:false })
+        let getCollegeId = await collegeModel.findOne({ name })
         if (!getCollegeId) {
-            return res.status(404).send({ status: false, msg: "no college document is present" })
-         }
-        let id = getCollegeId[0]._id
-        // console.log(id)
-        
-        let findIntern = await internModel.find({ collegeId:id }).select({ _id: 1, name: 1, email: 1, mobile: 1 })
-        if (!findIntern) {
-            return res.status(404).send({ status: false, msg: "no intern is present" })
+            return res.status(404).send({ status: false, msg: "no college is present" })
         }
-        // console.log(findIntern)
 
-        let details = await collegeModel.find({ name }).select({ _id: 1, name: 1, fullName: 1, logoLink: 1, interests: findIntern })
+        const getCollege = JSON.parse(JSON.stringify(getCollegeId));
+        let id = getCollegeId._id
+        let findIntern = await internModel.find({ collegeId: id, isDeleted: false })
 
-        res.status(200).send({ status: true, msg: "interns list", data: details })
-    
+        if (Object.keys(findIntern) == 0) {
+            return res.status(404).send({ status: false, msg: "No intern or intern data deleted" })
+        }
+        getCollege.intern = [...findIntern]
+
+        res.status(200).send({ status: true, msg: "interns list", data: getCollege })
+
     }
-
     catch (err) {
         res.status(500).send({ status: false, msg: err.message })
     }
 
 }
+
+
 
 module.exports.createCollege = createCollege;
 module.exports.getCollegeDetails = getCollegeDetails;

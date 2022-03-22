@@ -22,7 +22,8 @@ const internSchema = new mongoose.Schema({
     mobile :{
         type:Number,
         required:true,
-        unique:true
+        unique:true,
+        match: [/^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/, "Please fill a valid Mobile Number"]
     },
     isDeleted :{
         type:Boolean,
