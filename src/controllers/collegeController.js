@@ -21,6 +21,7 @@ const createCollege = async function (req, res) {
         }
 
         let savecollege = await collegeModel.create(data)
+
         res.status(201).send({ status: true, msg: 'document created successfully', data: savecollege })
     }
     catch (err) {
@@ -37,19 +38,19 @@ const getCollegeDetails = async function (req, res) {
             res.status(400).send({ status: false, msg: "No parameters passed" })
         }
         let name = data;
-        let getCollegeId = await collegeModel.findOne({ name })
+        let getCollegeId = await collegeModel.findOne({ name }).select({_id:1,name:1,fullName:1,logoLink:1})
         if (!getCollegeId) {
             return res.status(404).send({ status: false, msg: "no college is present" })
         }
 
         const getCollege = JSON.parse(JSON.stringify(getCollegeId));
         let id = getCollegeId._id
-        let findIntern = await internModel.find({ collegeId: id, isDeleted: false })
+        let findIntern = await internModel.find({ collegeId: id, isDeleted: false }).select({_id:1,name:1,email:1,mobile:1})
 
         if (Object.keys(findIntern) == 0) {
             return res.status(404).send({ status: false, msg: "No intern or intern data deleted" })
         }
-        getCollege.intern = [...findIntern]
+        getCollege.intern = findIntern
 
         res.status(200).send({ status: true, msg: "interns list", data: getCollege })
 
